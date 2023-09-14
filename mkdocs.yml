@@ -1,2 +1,6 @@
-site_name: My Docs
-site_url: https://example.com/
+site_name: Docs
+site_url: https://hemicide.github.io/docs/
+repo_url: https://github.com/hemicide/docs
+repo_name: docs
+edit_uri: edit/master/docs/
+site_dir: mkdocs
