@@ -4,3 +4,69 @@ repo_url: https://github.com/hemicide/docs
 repo_name: docs
 edit_uri: edit/master/docs/
 site_dir: mkdocs
+use_directory_urls: false
+theme:
+  name: material
+  logo: assets/logo.png
+  language: ru
+  custom_dir: docs/assets/theme
+  palette:
+  - scheme: default
+    toggle:
+      icon: material/toggle-switch-off-outline
+      name: Switch to dark mode
+  - scheme: slate
+    toggle:
+      icon: material/toggle-switch
+      name: Switch to light mode
+  icon:
+    edit: material/pencil
+  features:
+  - search.suggest
+  - search.highlight
+  - content.code.copy
+  - content.action.edit
+plugins:
+- search:
+    lang:
+    - en
+    - ru
+- offline
+- include-markdown
+- drawio_file
+markdown_extensions:
+- meta
+- admonition
+- toc:
+    slugify: !!python/object/apply:functools.partial
+      args:
+      - !!python/name:pymdownx.slugs._uslugify
+      state: !!python/tuple
+      - !!python/name:pymdownx.slugs._uslugify
+      - !!python/tuple []
+      - case: lower
+        percent_encode: false
+        normalize: NFC
+      - null
+    permalink: ''
+- pymdownx.details
+- pymdownx.tasklist:
+    custom_checkbox: true
+- pymdownx.tabbed:
+    alternate_style: true
+- pymdownx.superfences:
+    custom_fences:
+    - name: mermaid
+      class: mermaid
+      format: !!python/name:pymdownx.superfences.fence_code_format
+- pymdownx.inlinehilite
+- pymdownx.keys
+- pymdownx.caret
+- pymdownx.mark
+- pymdownx.tilde
+extra_javascript:
+- assets/javascripts/shortcuts.js
+extra_css:
+- assets/stylesheets/wide.css
+- assets/stylesheets/permalink.css
+- assets/stylesheets/tables.css
