@@ -1,0 +1,1136 @@
+
+<!doctype html>
+<html lang="ru" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://hemicide.github.io/docs/Golang/gorutines.html">
+      
+      
+        <link rel="prev" href="../index.html">
+      
+      
+        <link rel="next" href="package.html">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.46">
+    
+    
+      
+        <title>Конкурентность и параллелизм в GO - Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/wide.css">
+    
+      <link rel="stylesheet" href="../assets/stylesheets/permalink.css">
+    
+      <link rel="stylesheet" href="../assets/stylesheets/tables.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#конкурентность-и-параллелизм-в-go" class="md-skip">
+          Перейти к содержанию
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Верхний колонтитул">
+    <a href="../index.html" title="Docs" class="md-header__button md-logo" aria-label="Docs" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Конкурентность и параллелизм в GO
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Поиск" placeholder="Поиск" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Поиск">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Очистить" aria-label="Очистить" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Инициализация поиска
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hemicide/docs" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    docs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Навигация" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="Docs" class="md-nav__button md-logo" aria-label="Docs" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hemicide/docs" title="Перейти к репозиторию" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    docs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Golang
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Golang
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Конкурентность и параллелизм в GO
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="gorutines.html" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Конкурентность и параллелизм в GO
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#переключение-контекста" class="md-nav__link">
+    <span class="md-ellipsis">
+      Переключение контекста
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#синхронизация-потоков" class="md-nav__link">
+    <span class="md-ellipsis">
+      Синхронизация потоков
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#синхронизация-доступа-к-данным" class="md-nav__link">
+    <span class="md-ellipsis">
+      Синхронизация доступа к данным
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Синхронизация доступа к данным">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mutex" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mutex
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#состояние-гонки" class="md-nav__link">
+    <span class="md-ellipsis">
+      Состояние гонки
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Состояние гонки">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#race-detector" class="md-nav__link">
+    <span class="md-ellipsis">
+      race detector
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#локальная-очереди" class="md-nav__link">
+    <span class="md-ellipsis">
+      Локальная очереди
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Локальная очереди">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#когда-в-очереди-закончились-горутины" class="md-nav__link">
+    <span class="md-ellipsis">
+      Когда в очереди закончились горутины
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syscalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      SYSCALLS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SYSCALLS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#handoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      Handoff
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#очереди-в-планировщике-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      Очереди в планировщике GO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Очереди в планировщике GO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#глобальная-очередь" class="md-nav__link">
+    <span class="md-ellipsis">
+      Глобальная очередь
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#очередь-ожидания-wait-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      Очередь ожидания (wait group)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#netpoller-мультиплексор" class="md-nav__link">
+    <span class="md-ellipsis">
+      NetPoller (мультиплексор)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NetPoller (мультиплексор)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#режимы-работы-планировщика" class="md-nav__link">
+    <span class="md-ellipsis">
+      Режимы работы планировщика
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#кооперативный-невытесняющий" class="md-nav__link">
+    <span class="md-ellipsis">
+      Кооперативный (невытесняющий)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#вытесняющий" class="md-nav__link">
+    <span class="md-ellipsis">
+      Вытесняющий
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#асинхронная-вытесняющая-многозадачность-asynchronous-preemption" class="md-nav__link">
+    <span class="md-ellipsis">
+      Асинхронная вытесняющая многозадачность (Asynchronous preemption)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="package.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Пакеты
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="project.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Организация кода
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="slice.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Slice
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Patterns
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Patterns
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Patterns/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Паттерны
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#переключение-контекста" class="md-nav__link">
+    <span class="md-ellipsis">
+      Переключение контекста
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#синхронизация-потоков" class="md-nav__link">
+    <span class="md-ellipsis">
+      Синхронизация потоков
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#синхронизация-доступа-к-данным" class="md-nav__link">
+    <span class="md-ellipsis">
+      Синхронизация доступа к данным
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Синхронизация доступа к данным">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mutex" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mutex
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#состояние-гонки" class="md-nav__link">
+    <span class="md-ellipsis">
+      Состояние гонки
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Состояние гонки">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#race-detector" class="md-nav__link">
+    <span class="md-ellipsis">
+      race detector
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#локальная-очереди" class="md-nav__link">
+    <span class="md-ellipsis">
+      Локальная очереди
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Локальная очереди">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#когда-в-очереди-закончились-горутины" class="md-nav__link">
+    <span class="md-ellipsis">
+      Когда в очереди закончились горутины
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syscalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      SYSCALLS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SYSCALLS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#handoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      Handoff
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#очереди-в-планировщике-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      Очереди в планировщике GO
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Очереди в планировщике GO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#глобальная-очередь" class="md-nav__link">
+    <span class="md-ellipsis">
+      Глобальная очередь
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#очередь-ожидания-wait-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      Очередь ожидания (wait group)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#netpoller-мультиплексор" class="md-nav__link">
+    <span class="md-ellipsis">
+      NetPoller (мультиплексор)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NetPoller (мультиплексор)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#режимы-работы-планировщика" class="md-nav__link">
+    <span class="md-ellipsis">
+      Режимы работы планировщика
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#кооперативный-невытесняющий" class="md-nav__link">
+    <span class="md-ellipsis">
+      Кооперативный (невытесняющий)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#вытесняющий" class="md-nav__link">
+    <span class="md-ellipsis">
+      Вытесняющий
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#асинхронная-вытесняющая-многозадачность-asynchronous-preemption" class="md-nav__link">
+    <span class="md-ellipsis">
+      Асинхронная вытесняющая многозадачность (Asynchronous preemption)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+    <a href="https://github.com/hemicide/docs/edit/master/docs/Golang/gorutines.md" title="Редактировать страницу" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="конкурентность-и-параллелизм-в-go">Конкурентность и параллелизм в GO<a class="headerlink" href="#конкурентность-и-параллелизм-в-go" title="Permanent link"></a></h1>
+<p><img alt="alt text" src="image.png" /></p>
+<p>Горутины работают в одном адресном пространстве. Следовательно, доступ к общей памяти должен быть синхронизирован. Это можно сделать через пакет sync, но это крайне не рекомендуется. Вместо этого Go использует каналы для синхронизации горутин.</p>
+<p>Управление стеком осуществляется автоматически. Сборщик мусора не управляет стеками. Вместо этого они освобождаются сразу после выхода горутины.</p>
+<p>Горутины могут выполняться в нескольких потоках операционной системы. Горутины имеют временной интервал в потоках ОС, поэтому некоторое количество горутин может обслуживаться меньшим числом потоков ОС.</p>
+<p>Существуют два стиля параллелизма: детерминированный (четко определенный порядок) и недетерминированный (блокировка / взаимное исключение, но неопределенный порядок). Горутины и каналы Go продвигают детерминированный параллелизм (например, каналы с одним отправителем и одним получателем).</p>
+<hr />
+<h2 id="переключение-контекста">Переключение контекста<a class="headerlink" href="#переключение-контекста" title="Permanent link"></a></h2>
+<p>Кооперативная многозадачность - контекст переключается в тот момент когда текущая активная задача явно объявляет о том что она готова отдать контекст другой задаче. (есть риск что будут захвачены все вычислительные ресурсы и не даст выполнятся другим задачам)</p>
+<p>Вытесняющаяя многозадачность - задачи управляются некоторым компонентом, который принудительно может ставить одни задачи на паузу и продолжать выполнение других (может быть неэффективным переключение контекста)</p>
+<p>В GO существуется смешенный подход (планировщиком), но работает не в режиме runtime, а во время компиляции приложения.
+Компилятор расставляет метки для переключения контекста в различным местах программы, основываясь на некоторых эвристиках о том что в таких местах программа скорее всего будет заблокирована.</p>
+<p>Переключение контекста обычно происходит в местах:</p>
+<ul>
+<li>операции с сетью</li>
+<li>системные вызовы</li>
+<li>вызовы функций</li>
+<li>блокировки</li>
+</ul>
+<blockquote>
+<p>runtime.Goshed() - явно переключится на выполнение другой горутины</p>
+</blockquote>
+<h2 id="синхронизация-потоков">Синхронизация потоков<a class="headerlink" href="#синхронизация-потоков" title="Permanent link"></a></h2>
+<ul>
+<li>chan</li>
+</ul>
+<h2 id="синхронизация-доступа-к-данным">Синхронизация доступа к данным<a class="headerlink" href="#синхронизация-доступа-к-данным" title="Permanent link"></a></h2>
+<p>Примитивы синхронизации:</p>
+<ul>
+<li>Mutex</li>
+<li>RWMutex</li>
+<li>Atomic - атомарные счетчики (низкоуровненвые примитивы синхронизации)</li>
+<li>sync.Map</li>
+<li>WaitGroup</li>
+<li>sync.Poll</li>
+<li>sync.Cond</li>
+</ul>
+<h3 id="mutex">Mutex<a class="headerlink" href="#mutex" title="Permanent link"></a></h3>
+<ol>
+<li>Не встаривать Mutex в структуру:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="kd">type</span><span class="w"> </span><span class="nx">MyStruct</span><span class="w"> </span><span class="nx">strcut</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>При встраивании Mutex станет экспортируемым полем и будет доступен публично.</p>
+<ol>
+<li>Не хранить ссылку на Mutex в поле структуры</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="kd">type</span><span class="w"> </span><span class="nx">MyStruct</span><span class="w"> </span><span class="nx">strcut</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">mu</span><span class="w"> </span><span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Во всех копиях структуры будет храниться указатель на один и тот же Mutex</p>
+<ol>
+<li>Методы которые блокируют и разблокируют Mutex должны иметь ссылчной ресивер</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="nx">MyStruct</span><span class="p">)</span><span class="w"> </span><span class="nx">A</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">m</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Mutex будет заблокирован в копии структуры, а не в том экземпляре у коготорого был вызван метод</p>
+<ol>
+<li>RWMutex</li>
+</ol>
+<div class="highlight"><pre><span></span><code>mu sync.RWMutex
+</code></pre></div>
+<p>Эксклюзивные блокировки отдельно на чтение и отдельно на запись</p>
+<h2 id="состояние-гонки">Состояние гонки<a class="headerlink" href="#состояние-гонки" title="Permanent link"></a></h2>
+<h3 id="race-detector">race detector<a class="headerlink" href="#race-detector" title="Permanent link"></a></h3>
+<div class="highlight"><pre><span></span><code><span class="o">--</span><span class="nx">race</span>
+</code></pre></div>
+<h3 id="локальная-очереди">Локальная очереди<a class="headerlink" href="#локальная-очереди" title="Permanent link"></a></h3>
+<p>Local lock-free queue (LRQ=256)</p>
+<p><img alt="alt text" src="image-1.png" /></p>
+<h4 id="когда-в-очереди-закончились-горутины">Когда в очереди закончились горутины<a class="headerlink" href="#когда-в-очереди-закончились-горутины" title="Permanent link"></a></h4>
+<p>Work sharing - потоки шарят определенные горутины между собой
+<img alt="alt text" src="image-3.png" /></p>
+<p>Work stealing - пустые потоки (без контекста) будут красть горутины
+<img alt="alt text" src="image-4.png" /></p>
+<ul>
+<li>Нужна синхронизация (-)</li>
+<li>Красть из рандомной очереди</li>
+<li>Попытаться украсть 4 раза</li>
+<li>Красть половину - чтобы минимизировать конфликт и синхронизацию</li>
+</ul>
+<p>256 горутин в очереди</p>
+<h2 id="syscalls">SYSCALLS<a class="headerlink" href="#syscalls" title="Permanent link"></a></h2>
+<p>Голодание - когда горутины никто не выполняет. При <code>SYSCALL</code> происходит прокировка потока ОС.</p>
+<h3 id="handoff">Handoff<a class="headerlink" href="#handoff" title="Permanent link"></a></h3>
+<p>Планировщик GO сразу открепляет потом (М) от процессора (Р), если понимает, что поток будет заблокирован на системной вызове в течении долгого времени.</p>
+<blockquote>
+<p>В других случаях (short-lived syscalls) он позволит потоку быть заблокированным и не будет откреплять его от процессора.</p>
+</blockquote>
+<p><img alt="alt text" src="image-5.png" /></p>
+<p>Но иногда поток может оставаться заблокированным долгое время.
+Тогда <strong>sysmon</strong> проверяет, находится ли потом еще в <code>SYSCALL</code> и если да, то <code>sysmon</code> открепляет поток от процессора, создается новый потом и к нему прикрепляется процессор.</p>
+<h2 id="очереди-в-планировщике-go">Очереди в планировщике GO<a class="headerlink" href="#очереди-в-планировщике-go" title="Permanent link"></a></h2>
+<p>https://youtu.be/P2Tzdg8n9hw?si=F2GkpPsQV-mOEKci&amp;t=2443</p>
+<h3 id="глобальная-очередь">Глобальная очередь<a class="headerlink" href="#глобальная-очередь" title="Permanent link"></a></h3>
+<p>После выполнения SYSCALL горутина добавляется в очередь того процессора, где она была. Если процессор недоступен (полненоа локальная очередь или он занят другим syscall) то ищем другой процессор.</p>
+<blockquote>
+<p>Если не нашлось доступных процессоров, то добавляем горутину в глобальную очередь (с <code>mutex</code>).</p>
+</blockquote>
+<p>Чтобы горутины в глобальной очереди не голодали, 1/61 тиков планировщика горутины беруться из глобальной очереди.</p>
+<blockquote>
+<p>1/61 - число которое будет приводить к редким конфликтам</p>
+</blockquote>
+<h3 id="очередь-ожидания-wait-group">Очередь ожидания (wait group)<a class="headerlink" href="#очередь-ожидания-wait-group" title="Permanent link"></a></h3>
+<p>Заблокированные горутины (Mutex, SysCall) вытесняются в очередь ожидания.</p>
+<p><img alt="alt text" src="image-6.png" /></p>
+<h2 id="netpoller-мультиплексор">NetPoller (мультиплексор)<a class="headerlink" href="#netpoller-мультиплексор" title="Permanent link"></a></h2>
+<p>Т.к. системыне вызовы wtite/read являются блокирующими вызоывами</p>
+<p>Когда создается сетевое соединение (сокет), создается файл-дескриптом, он добавляется в мультиплесор, который отслеживает изменения сокетов. Когда будут доступны данные, горутина разблокируется и возвращается по принципу <strong>handoff</strong></p>
+<h3 id="режимы-работы-планировщика">Режимы работы планировщика<a class="headerlink" href="#режимы-работы-планировщика" title="Permanent link"></a></h3>
+<p>https://habr.com/ru/articles/502506/</p>
+<h2 id="кооперативный-невытесняющий">Кооперативный (невытесняющий)<a class="headerlink" href="#кооперативный-невытесняющий" title="Permanent link"></a></h2>
+<p>Планировщик не может забрать время у вычислительного потока, пока тот сам его не отдаст</p>
+<h2 id="вытесняющий">Вытесняющий<a class="headerlink" href="#вытесняющий" title="Permanent link"></a></h2>
+<p>Планировщик по истечении кванта времени выбирает следующий активный вычислительный поток, сам вычислительный поток также может отдать предназначенный для него остаток кванта времени</p>
+<h2 id="асинхронная-вытесняющая-многозадачность-asynchronous-preemption">Асинхронная вытесняющая многозадачность (Asynchronous preemption)<a class="headerlink" href="#асинхронная-вытесняющая-многозадачность-asynchronous-preemption" title="Permanent link"></a></h2>
+<p>Если есть горутина, работающая более 10мс, в поток передается сигнал для ее вытяснния (SIGUGR). Этим занимается <strong>sysmon</strong>.</p>
+<blockquote>
+<p>Горутина может вытясниться не сразу, если она находится в unsafe pointer.</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+<script id="__config" type="application/json">{"base": "..", "features": ["search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u0432 \u0431\u0443\u0444\u0435\u0440", "clipboard.copy": "\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0432 \u0431\u0443\u0444\u0435\u0440", "search.result.more.one": "\u0415\u0449\u0451 1 \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.more.other": "\u0415\u0449\u0451 # \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.none": "\u0421\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e", "search.result.one": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e 1 \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0435", "search.result.other": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439: #", "search.result.placeholder": "\u041d\u0430\u0447\u043d\u0438\u0442\u0435 \u043f\u0435\u0447\u0430\u0442\u0430\u0442\u044c \u0434\u043b\u044f \u043f\u043e\u0438\u0441\u043a\u0430", "search.result.term.missing": "\u041e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442", "select.version": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0435\u0440\u0441\u0438\u044e"}}</script>
+    
+
+
+    
+      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
+      
+        <script src="../assets/javascripts/shortcuts.js"></script>
+      
+    
+  </body>
+</html>
